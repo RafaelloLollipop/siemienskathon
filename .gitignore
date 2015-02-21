@@ -1,2 +1,4 @@
 /server/.idea
 /server/Games/__pycache__
+/server/__pycache__
+/server/Tmp.py
