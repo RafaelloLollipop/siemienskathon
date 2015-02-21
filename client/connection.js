@@ -44,7 +44,7 @@ Connection.prototype.onMessage = function(evt){
     case "rooms" : window.showRooms();break;
     case "disconnect": this.game.onDisconnect();break;
     case "roomUpdate": this.game.onRoomUpdate();break;
-    
+
     default : console.log("Unsupported message");
   }
 };
@@ -74,19 +74,12 @@ Connection.prototype.selectGame = function(game_id){
   this.sendData(data);
 };
 
-Connection.prototype.joinRoom = function(room_id){
-  var data = {
-    room_id : room_id
-  };
-  this.sendData(data);
-};
-
 Connection.prototype.onError = function(evt){
   this.sendMessage("Error occured");
   console.log("Error occured...");
 };
 
-Connection.prototype.connectToRoom = function(room_id, player_name){
+Connection.prototype.joinRoom = function(room_id, player_name){
   var data = {
     name: player_name,
     room_id: room_id

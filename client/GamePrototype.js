@@ -20,3 +20,9 @@ GamePrototype.prototype.getGameCode = function(){
 GamePrototype.prototype.onRoomUpdate = function(){
   throw new Exception("OnRoomUpdate not implemented");
 }
+
+function clone (obj) {
+  if (!obj) return;
+  clone.prototype = obj;
+  return new clone();
+}
