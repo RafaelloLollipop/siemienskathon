@@ -4,6 +4,25 @@
     <title></title>
   </head>
   <body>
-    <script type="text/javascript" src="./connectToServer.js"></script>
+    <button id="connect">Connect to server</button>
+    <script type="text/javascript" src="./connection.js"></script>
+    <script type="text/javascript">
+
+      function showRooms(){
+        console.log("show Rooms");
+      }
+
+      function connect(){
+        var server_address = "192.168.0.10";
+        var server_port = 8888;
+        var connection = new Connection(null,server_address,server_port);
+      }
+
+      var button = document.getElementById("connect");
+
+      button.addEventListener("click",connect);
+
+
+    </script>
   </body>
 </html>
