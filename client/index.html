@@ -4,6 +4,50 @@
     <title></title>
   </head>
   <body>
-    <script type="text/javascript" src="./connectToServer.js"></script>
+    <button id="connect">Connect to server</button>
+    <button id="join">Join Room</button>
+    <button id="select">Select Game</button>
+    <button id="exit">Exit Game</button>
+
+
+    <script type="text/javascript" src="./connection.js"></script>
+    <script src="http://code.jquery.com/jquery.min.js"></script>
+    <script type="text/javascript">
+      var showRooms;
+      $(document).ready(function(){
+
+        var connection = null;
+
+        showRooms = function (){
+          console.log("show Rooms");
+        }
+
+        function connect(){
+          var server_address = "192.168.0.10";
+          var server_port = 8888;
+          connection = new Connection(null,server_address,server_port);
+        }
+
+        $("#connect").click(function(evt){
+          evt.preventDefault();
+          connect();
+        });
+        $("#join").click(function(evt){
+          evt.preventDefault();
+          connection.joinRoom(0,"my_name_is");
+        });
+        $("#select").click(function(evt){
+          evt.preventDefault();
+          connection.selectGame(0);
+        });
+        $("#exit").click(function(evt){
+          evt.preventDefault();
+          connection.exitRoom(0,"staraLizonia");
+        });
+
+      });
+
+
+    </script>
   </body>
 </html>
