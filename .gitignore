@@ -2,3 +2,6 @@
 /server/Games/__pycache__
 /server/__pycache__
 /server/Tmp.py
+/server/Games/time
+/server/Games/random
+/server/Games/Player.pyc
