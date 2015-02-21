@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+
 import socket
 
 if __name__ == "__main__":
@@ -8,9 +9,12 @@ import socket
 
 class Player(object):
 	
-	def __init__(self, socket):
+	def __init__(self, socket, nick):
 		self.socket = socket
 		self.room = None
+		self.id = id(self)
+		self.nick = nick
+		self.data = {}
 		
 	def addToRoom(self, room):
 		self.room = room
@@ -18,6 +22,10 @@ class Player(object):
 	
 	def removeFromRoom(self):
 		self.room = None
+		return self
+	
+	def setNick(self, nick):
+		self.nick = nick
 		return self
 
 """
