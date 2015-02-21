@@ -28,7 +28,7 @@ Connection.prototype.onClose = function(evt){
 };
 
 Connection.prototype.onMessage = function(evt){
-
+  console.log(evt);
   try{
     var data = evt.data;
     data = JSON.parse(data);
@@ -71,7 +71,7 @@ Connection.prototype.selectGame = function(game_id){
     game_id : game_id
   };
 
-  this.sendData(data);
+  this.sendData("selectGame",data);
 };
 
 Connection.prototype.onError = function(evt){
@@ -84,5 +84,13 @@ Connection.prototype.joinRoom = function(room_id, player_name){
     name: player_name,
     room_id: room_id
   };
-  this.sendData(data);
+  this.sendData("connectToRoom",data);
+};
+
+Connection.prototype.exitRoom = function(room_id, player_name){
+  var data = {
+    name: player_name,
+    room_id: room_id
+  };
+  this.sendData("exitRoom",data);
 };
