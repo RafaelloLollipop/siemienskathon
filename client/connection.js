@@ -1,5 +1,4 @@
-function Connection(game,server_address,server_port){
-  this.game = game;
+function Connection(server_address,server_port){
   this.websocket = null;
   this.server_uri = "ws://"+server_address+":"+server_port+"/game";
   this.init();
@@ -28,7 +27,7 @@ Connection.prototype.onClose = function(evt){
 };
 
 Connection.prototype.onMessage = function(evt){
-  console.log(evt);
+
   try{
     var data = evt.data;
     data = JSON.parse(data);
@@ -41,9 +40,10 @@ Connection.prototype.onMessage = function(evt){
 
   switch(message){
 
-    case "rooms" : window.showRooms();break;
-    case "disconnect": this.game.onDisconnect();break;
-    case "roomUpdate": this.game.onRoomUpdate();break;
+    case "rooms" : window.showRooms(data.rooms);break;
+    case "disconnect": window.game.onDisconnect();break;
+    case "roomUpdate": window.roomUpdate(data);break;
+    case "start": window.game.onStart();break;
 
     default : console.log("Unsupported message");
   }
@@ -64,6 +64,10 @@ Connection.prototype.sendData = function(message, data){
   };
   request = JSON.stringify(request);
   this.websocket.send(request);
+};
+
+Connection.prototype.sendGameData = function(data){
+  this.sendData("gameData", data);
 };
 
 Connection.prototype.selectGame = function(game_id){

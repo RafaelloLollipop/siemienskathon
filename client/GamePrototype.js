@@ -14,9 +14,6 @@ GamePrototype.prototype.onConnectionClose = function (){
 GamePrototype.prototype.disconnect = function(){
   throw new Exception("Disconnect not implemented!");
 };
-GamePrototype.prototype.getGameCode = function(){
-  throw new Exception("GetGameCode not implemented");
-};
 GamePrototype.prototype.onRoomUpdate = function(){
   throw new Exception("OnRoomUpdate not implemented");
 }
