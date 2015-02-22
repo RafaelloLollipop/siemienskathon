@@ -41,3 +41,18 @@ class Game(object):
 	@staticmethod
 	def getGamesArray():
 		return [json.load(open("Games/%s/game.json" %f)) for f in os.listdir("Games") if os.path.isdir("Games/%s" %f) and not '__' in f ]
+	
+	@staticmethod
+	def getGameByName(name):
+		games = [f for f in os.listdir("Games") if os.path.isdir("Games/%s" %f) and not '__' in f ]
+		ret = [f for f in games if json.load(open("Games/%s/game.json" %f))['name'] == name];
+		if len(ret) == 1:
+			import importlib
+			objname = "Games.%s.game" %ret[0]
+			module_name, member_name = "Games.%s.game" %ret[0], "game"
+			module = importlib.import_module(module_name)
+			member = getattr(module, member_name)
+			member 
+			return member;
+			return "Games.%s.game" %ret[0];
+		return False
