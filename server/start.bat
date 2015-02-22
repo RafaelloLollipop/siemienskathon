@@ -1,1 +1,1 @@
-python test.py -a 127.0.0.1:8889
+python run_server.py -a 192.168.0.10:8888
