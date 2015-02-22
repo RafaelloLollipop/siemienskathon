@@ -27,6 +27,10 @@ class Player(object):
 	def setNick(self, nick):
 		self.nick = nick
 		return self
+	
+	def sendMessage(self, data):
+		print(data)
+		pass
 
 """
 HOST = ''                 # Symbolic name meaning all available interfaces
