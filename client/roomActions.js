@@ -55,23 +55,18 @@ function showRooms(rooms){
 }
 
 function joinRoom(evt){
-// <<<<<<< HEAD
-//  var id = this.getAttribute("room_name");
-//  if(document.getElementById("selected_room") !== null){
-//    document.getElementById("selected_room").removeAttribute('id');
-// }
-//  this.id = "selected_room";
-// connection.joinRoom(id);
-//=======
 var id = this.getAttribute("room_name");
   if(document.getElementById("selected_room") !== null){
     document.getElementById("selected_room").removeAttribute('id');
- }
+  }
   this.id = "selected_room";
   var room_id = this.getAttribute("data-id");
   var player_name = window.localStorage.getItem("player_name");
+  console.log("Room"+room_id);
+  console.log("player"+player_name);
+
   connection.joinRoom(room_id,player_name);
-//>>>>>>> 0e037ddcf4385d6a7cad707f85568d3bca311b39
+
   var preview = createPreview();
 };
 
@@ -115,9 +110,8 @@ function createTools(){
   var new_room = elementWithId("button","new_roow");
   var title = document.createElement("h1");
   new_room.addEventListener('click',function(){
-    console.log("stuff");
-    var player_name = prompt("Please enter your name:","Magiczny Krzysztof");
-    var data = {"player_id": window.localStorage.getItem("id"),"player_name":player_name};
+    var room_name = prompt("Please enter your room name:","Magiczny Pokoj");
+    var data = {"room_name": room_name};
 
     connection.sendData("new_room", data);
   });
