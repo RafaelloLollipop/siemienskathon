@@ -10,7 +10,7 @@ import os.path
 if __name__ == "__main__":
 	raise Exception("You cannot run this file directly")
 
-class Demo(Game):
+class game(Game):
 	def __init__(self, players):
 		self.filename = os.path.dirname(os.path.realpath(__file__));
 		self.load()
