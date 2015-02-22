@@ -35,6 +35,7 @@ document.getElementsByTagName( "head" )[0].appendChild( link );
   };
 
   this.onStart = function(data){
+	  console.log(data)
     this.players = data["players"];
     this.weights["left"] = data["left"];
     this.weights["right"] = data["right"];
@@ -49,11 +50,13 @@ document.getElementsByTagName( "head" )[0].appendChild( link );
 
   this.dataHandler = function(data){
   console.log(data)
+
     switch(data.action){
       case "move_accepted":this.move_accept_handler();break;
       case "move_rejected":this.move_rejected_handler();break;
       case "proposition_accepted":this.proposition_accepted_handler();break;
       case "end":this.end_handler();break;
+      case "updateStatus":break;
     }
   };
 

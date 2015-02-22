@@ -10,11 +10,13 @@ var loadScript = function (url, callback){
                     script.readyState == "complete"){
                 script.onreadystatechange = null;
                 callback();
+                connection.sendMessage("ready");
             }
         };
     } else {  //Others
         script.onload = function(){
             callback();
+            connection.sendMessage("ready");
         };
     }
 
