@@ -6,7 +6,6 @@ import sys
 import getopt
 import json
 import jsonpickle
-from Room import Room
 from Games.Game import Game
 from Server import Server
 from Player import Player
@@ -27,24 +26,25 @@ class ClientHandler(tornado.websocket.WebSocketHandler):
         print(resp)
         self.write_message(resp)
 
+    def on_close(self):
+        server = Server.get_from_memcached()
+        server.delete_player(self.player)
+
+
     def handle_request(self, data):
         response = {'message': "NOPE_OK"}
         data = json.loads(data)
         if data['message'] == 'connectToServer':
-            #player_name = data['message']['player_name']
-            player_name = "test"
-            self.player = Player(self, player_name)
-            response = self.get_rooms_list_info()
+            player_name = data['data']['player_name']
+            response = self.connectToServer(player_name)
             return response
 
         if data['message'] == 'connectToRoom':
             room_id = data['data']['room_id']
-            #room_id = 1
             server = Server.get_from_memcached()
-            room = server.get_room_by_id(room_id)
-            room.add_player(self.player)
-            Server.save_to_memcached(server)
-            #game_name = room.game.name
+            if self.player.room_id:
+                server.remover_player_from_room(self.player.room_id, self.player.id)
+            server.add_player_to_room(room_id, self.player.id)
             game_name = "demo"
             game_script = "http://" + self.request.host + "/games/" + game_name + "/js/game.js"
             print(game_script)
@@ -65,8 +65,7 @@ class ClientHandler(tornado.websocket.WebSocketHandler):
                         }
             return response
         if data['message'] == 'ready':
-            response = {'message': "OK",
-                        }
+            response = self.all_ready()
             return response
         if data['message'] == 'newRoom':
             room_name = data['data']['room_name']
@@ -83,6 +82,26 @@ class ClientHandler(tornado.websocket.WebSocketHandler):
                         }
             return response
         return response
+
+    def all_ready(self):
+        response = {'message': "start",
+                    }
+        return response
+
+    def connectToServer(self, player_name):
+        self.player = Player(self, player_name)
+        server = Server.get_from_memcached()
+        server.add_player(self.player)
+        self.send_id_to_player()
+        return self.get_rooms_list_info()
+
+    def send_id_to_player(self):
+        response = {'message': "connectSuccess",
+            'data': {
+                    'player_id' : self.player.id
+                }
+            }
+        self.write_message(response)
 
     def get_rooms_list_info(self):
         server = serv.get_from_memcached()
@@ -103,10 +122,8 @@ class ClientHandler(tornado.websocket.WebSocketHandler):
 
     def create_new_room(self, room_name):
         server = serv.get_from_memcached()
-        server.create_room(self.player, room_name)
+        server.create_room(self.player.id, room_name)
 
-    def on_close(self):
-        print('connection closed')
 
     def check_origin(self, origin):
         return True
