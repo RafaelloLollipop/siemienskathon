@@ -9,7 +9,6 @@ Connection.prototype.init = function(){
 
   this.websocket = new WebSocket(this.server_uri);
 
-  console.log(this.websocket);
   var _this = this;
 
   this.websocket.onopen = function (evt){_this.onOpen(evt);};
@@ -19,7 +18,9 @@ Connection.prototype.init = function(){
 };
 
 Connection.prototype.onOpen = function(evt){
-  this.sendMessage("connectToServer");
+  var id = window.localStorage.getItem("player_name");
+  var data = {player_name: id };
+  this.sendData("connectToServer", data);
   this.sendMessage("gameList");
   console.log("Connecting to server...");
 };

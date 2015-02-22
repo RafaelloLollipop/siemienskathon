@@ -49,8 +49,9 @@ function showRooms(rooms){
 }
 
 function joinRoom(evt){
-  var id = this.getAttribute("room_id");
-  connection.joinRoom(id);
+  var id = this.getAttribute("id");
+  var player_name = window.localStorage.getItem("player_name");
+  connection.joinRoom(id,player_name);
   var preview = createPreview();
 
 };
@@ -88,8 +89,6 @@ function setContainerDefaultContent(){
   container.innerHTML += '<br style="clear: left;" />';
 
   createTools();
-
-  console.log(document.getElementById("new_room"));
 };
 
 function createTools(container){
@@ -122,8 +121,6 @@ function createPreview(){
   var ready_button = document.createElement("button");
   ready_button.innerHTML = "Ready!";
   ready_button.addEventListener('click',function(){
-    console.log("chuj");
-    console.log(connection);
     connection.sendMessage("ready");
     var game_script = window.localStorage.getItem("game_script");
     loadScript(game_script,initializeGame);
