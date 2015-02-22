@@ -162,9 +162,9 @@ function createPreview(){
   var ready_button = document.createElement("button");
   ready_button.innerHTML = "Ready!";
   ready_button.addEventListener('click',function(){
-    connection.sendMessage("ready");
     var game_script = window.localStorage.getItem("game_script");
     loadScript(game_script,initializeGame);
+    
   });
 
   var selectGame_button = document.createElement("button");

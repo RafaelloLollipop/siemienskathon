@@ -31,28 +31,29 @@ Connection.prototype.onClose = function(evt){
 };
 
 Connection.prototype.onMessage = function(evt){
-
   try{
     var parsed = evt.data;
+    if(!parsed || parsed == 'null'){
+		return;
+	}
     parsed = JSON.parse(parsed);
   }catch(e){
     console.log(e);
     return;
   }
-
+ 
   var message = parsed.message;
   var data = parsed.data;
-
   switch(message){
 
     case "rooms" : window.showRooms(data.rooms);break;
     case "disconnect": window.game.onDisconnect();break;
     case "roomUpdate": window.roomUpdate(data);break;
-    case "start": window.game.onStart();break;
+    case "start": window.game.onStart(data.playerData); break;
     case "gameList":window.setGameList(data.game_list);break;
-    case "gameData":window.game.dataHandler();break;
+    case "gameData":window.game.dataHandler(data);break;
 
-    default : console.log("Unsupported message");
+    default : console.log(data); console.log("Unsupported message");
   }
 };
 
