@@ -5,28 +5,155 @@ import time
 import random
 from math import ceil, floor;
 from Team import Team
+import os.path
 
 if __name__ == "__main__":
 	raise Exception("You cannot run this file directly")
 
 class Demo(Game):
 	def __init__(self, players):
-		self.filename = "Games/Demo"
+		self.filename = os.path.dirname(os.path.realpath(__file__));
 		self.load()
 		self.players = players
 		self.teams = []
+		self.playable = False
+		self.started = False
+		self.winner = False
 		
 	def addPlayer(self, player):
 		self.players.append(player)
 		return self
 	
-	def doAction(self, action):
-		message = {}
-		return message
+	def doAction(self, data):
+		update = False
+		print(data)
+		try:
+			player = self.getPlayerById(data['from'])
+		except KeyError:
+			player = False
+		
+		try:
+			value = data['value']
+		except KeyError:
+			value = False
+			
+		default = {
+			"action": "none"
+		}
+		
+		if not self.playable:
+			if not self.started:
+				pass
+			else:
+				if player:
+					player.sendMessage({
+						"gameStatus": "end",
+						"action": "updateStatus",
+						"winner": self.winner,
+					})
+			update = True
+		
+		if data['action'] == "start":
+			if not self.playable:
+				self.start()
+				for player in self.players:
+					player.sendMessage({
+						"action": "updateStatus",
+						"gameStatus": "playable",
+						"playerData": self.getPlayerUpdate(player)
+					})
+			update = True
+			
+		elif data['action'] == "moveValueToWeight":
+			try:
+				weight = data['weight']
+			except KeyError:
+				weight = False
+				
+			if weight and player and value:
+				data['success'] = self.moveValueToWeight(player, value, weight)
+			else:
+				data['success'] = False
+				
+			data['playerData'] = self.getPlayerUpdate(player)
+			
+			if player:
+				player.sendMessage(data)
+			update = True
+				
+		elif data['action'] == "moveValueFromWeight":
+			try:
+				weight = data['weight']
+			except KeyError:
+				weight = False
+				
+			if weight and player and value:
+				data['success'] = self.moveValueFromWeight(player, value, weight)
+			else:
+				data['success'] = False
+				
+			data['playerData'] = self.getPlayerUpdate(player)
+			
+			if player:
+				player.sendMessage(data)
+			update = True
+				
+		elif data['action'] == "setProposition":
+			try:
+				playerTo = self.getPlayerById(data['to'])
+			except KeyError:
+				playerTo = False
+				
+			if playerTo and player and value:
+				data['success'] = self.setProposition(player, playerTo, value)
+			else:
+				data['success'] = False
+			
+			if player and playerTo:
+				data['playerData'] = self.getPlayerUpdate(player)
+				player.sendMessage(data)
+				data['action'] = "update"
+				data['playerData'] = self.getPlayerUpdate(playerTo)
+				playerTo.sendMessage(data)
+			update = True
+				
+		elif data['action'] == "removeProposition":
+			try:
+				playerTo = self.getPlayerById(data['to'])
+			except KeyError:
+				playerTo = False
+				
+			if playerTo and player and value:
+				data['success'] = self.removeProposition(player, playerTo, value)
+			else:
+				data['success'] = False
+			
+			if player and playerTo:
+				data['playerData'] = self.getPlayerUpdate(player)
+				player.sendMessage(data)
+				data['action'] = "update"
+				data['playerData'] = self.getPlayerUpdate(playerTo)
+				playerTo.sendMessage(data)
+			update = True
+		
+		if update:
+			if self.checkWinStatement():
+				for player in self.players:
+					player.sendMessage({
+						"gameStatus": "end",
+						"action": "updateStatus",
+						"winner": self.winner
+					})
+			return True
+		
+		return False
 	
 	def start(self):
 		self.prepareTeams()
 		self.preparePlayers()
+		self.winner = False
+		self.playable = True
+		self.started = True
 		return self
 	
 	def prepareTeams(self, teamNumber = 2):
@@ -66,9 +193,9 @@ class Demo(Game):
 			val = player.data['dataGame']['values'][index]
 			weight.append(val)
 			del player.data['dataGame']['values'][index]
-			return self
+			return True
 		except ValueError:
-			return self
+			return False
 	
 	def moveValueFromWeight(self, player, value, weight):
 		try:
@@ -81,6 +208,7 @@ class Demo(Game):
 			return self
 	
 	def setProposition(self, playerFrom, playerTo, value):
+		#print(self.checkWinStatement())
 		try:
 			tmp = playerFrom.data['dataGame']['propositions']['to'][playerTo] or playerTo.data['dataGame']['propositions']['from'][playerFrom]
 			return False
@@ -130,6 +258,41 @@ class Demo(Game):
 		if len(ret) > summary/2:
 			return self.randomizeValues(summary)
 		return ret
+	
+	def checkWinStatement(self):
+		if self.winner:
+			return True
+		if not self.playable:
+			return False
+		for team in self.teams:
+			win = True
+			for player in team.players:
+				if sum(player.data['dataGame']['weight1']) == player.data['dataGame']['summary'] and sum(player.data['dataGame']['weight2']) == player.data['dataGame']['summary']:
+					pass
+				else:
+					win = False
+			if win:
+				self.playable = False
+				self.winner = team
+				return True
+		return False
+	
+	def getPlayerById(self, id_):
+		ret = [player for player in self.players if id(player) == id_]
+		if len(ret) == 1:
+			return ret[0]
+		return False
+	
+	def getPlayerUpdate(self, player):
+		team = player.team
+		return {
+			"players": [{"name": player.nick, "id": player.id} for player in self.players if player.team == team],
+			"values": player.data['dataGame']['values'],
+			"weight1": player.data['dataGame']['weight1'],
+			"weight2": player.data['dataGame']['weight2'],
+			"from": [{"id": p.id, "value": player.data['dataGame']['propositions']['from'][p]} for p in player.data['dataGame']['propositions']['from'].keys()],
+			"to": [{"id": p.id, "value": player.data['dataGame']['propositions']['to'][p]} for p in player.data['dataGame']['propositions']['to'].keys()]
+		};
 	
 	def destroy(self):
 		pass

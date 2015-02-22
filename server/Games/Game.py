@@ -16,7 +16,6 @@ class Game(object):
 			"version" : ""
 		}
 		self.filename = ""
-		print(self.data)
 		raise Exception("Init function not implement in game %s v.%s by %s" %(self.data['name'], self.data['version'], self.data['author']))
 		pass
 	def start(self):
@@ -34,18 +33,11 @@ class Game(object):
 		except AttributeError:
 			raise Exception("Filename must be set to properly relative path without extension")
 		try:
-			self.data = json.load(open("%s.json" %self.filename));
+			self.data = json.load(open("%s/game.json" %self.filename));
 		except:
 			raise Exception("%s.json have bad JSON format" %self.filename)
 		pass
 	
 	@staticmethod
 	def getGamesArray():
-		games = []
-		for file in glob.glob("*.json"):
-			if(file):
-				try:
-					games.append(json.load(open(file)))
-				except ValueError as e:
-					print("%s have bad JSON format" %file)
-		return games
+		return [json.load(open("Games/%s/game.json" %f)) for f in os.listdir("Games") if os.path.isdir("Games/%s" %f) and not '__' in f ]
