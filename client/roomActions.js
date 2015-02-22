@@ -58,7 +58,7 @@ function joinRoom(evt){
 function roomUpdate(data){
     console.log("update");
 
-    window.localStorage.setItem("game_script",data.game_script);
+    window.localStorage.setItem("game_script", data.game_script);
 
     var players_list = document.getElementById("players_list");
     players_list.innerHTML = data.players;
@@ -95,7 +95,7 @@ function createTools(){
   new_room.innerHTML = "New Room";
   var data = {"player_id": window.localStorage.getItem("id")}
   new_room.addEventListener("click",function(){
-    connection.sendData("new_room", data);
+    connection.sendData("newRoom", data);
   });
   tools.appendChild(title);
   tools.appendChild(new_room);
