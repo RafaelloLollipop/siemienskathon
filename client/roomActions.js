@@ -5,9 +5,8 @@ function createRibbon(){
   innerRibbon.className = "ribbon-green";
   innerRibbon.innerHTML = "No game assigned";
   ribbon.appendChild(innerRibbon);
-  return ribbon;f
+  return ribbon;
 }
-
 
 function showRooms(rooms){
 
@@ -53,6 +52,7 @@ function joinRoom(evt){
   var id = this.getAttribute("room_id");
   connection.joinRoom(id);
   var preview = createPreview();
+
 };
 
 function roomUpdate(data){
@@ -80,26 +80,35 @@ function setContainerDefaultContent(){
 
   var rooms = elementWithId("div","rooms");
 
-  var tools = createTools();
+  var tools = elementWithId("div","tools");
+
   container.appendChild(preview);
   container.appendChild(rooms);
   container.appendChild(tools);
   container.innerHTML += '<br style="clear: left;" />';
+
+  createTools();
+
+  console.log(document.getElementById("new_room"));
 };
 
-function createTools(){
-  var tools = elementWithId("div","tools");
-  var new_room = document.createElement("button");
+function createTools(container){
+  var tools = document.getElementById("tools");
+  var new_room_button = elementWithId("button","new_room");
   var title = document.createElement("h1");
+
   title.innerHTML = "Tools";
-  new_room.innerHTML = "New Room";
-  var data = {"player_id": window.localStorage.getItem("id")}
-  new_room.addEventListener("click",function(){
+
+  new_room_button.addEventListener('click', function(){
+    var room_name = prompt("Type your room name:","defaultName"+Math.floor(Math.random()*100));
+    var data = {"player_id": window.localStorage.getItem("id"),"room_name":room_name};
+
     connection.sendData("newRoom", data);
   });
+  new_room_button.innerHTML = "New Room";
+
   tools.appendChild(title);
-  tools.appendChild(new_room);
-  return tools;
+  tools.appendChild(new_room_button);
 };
 
 function createPreview(){
@@ -111,8 +120,10 @@ function createPreview(){
   var chat = document.createElement("div");
 
   var ready_button = document.createElement("button");
-  ready_button.innerHTML = "Ready!"
-  ready_button.addEventListener("click",function(){
+  ready_button.innerHTML = "Ready!";
+  ready_button.addEventListener('click',function(){
+    console.log("chuj");
+    console.log(connection);
     connection.sendMessage("ready");
     var game_script = window.localStorage.getItem("game_script");
     loadScript(game_script,initializeGame);
@@ -142,6 +153,7 @@ function createPreview(){
   preview.appendChild(ready_button);
   preview.appendChild(selectGame);
   preview.appendChild(selectGame_button);
+
   return preview;
 };
 

@@ -89,6 +89,7 @@ Connection.prototype.onError = function(evt){
 };
 
 Connection.prototype.joinRoom = function(room_id, player_name){
+
   var data = {
     name: player_name,
     room_id: room_id
