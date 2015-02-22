@@ -111,9 +111,9 @@ function createTools(){
   var title = document.createElement("h1");
   new_room.addEventListener('click',function(){
     var room_name = prompt("Please enter your room name:","Magiczny Pokoj");
-    var data = {"roomName": room_name};
+    var data = {"room_name": room_name};
 
-    connection.sendData("new_room", data);
+    connection.sendData("newRoom", data);
   });
   new_room.innerHTML = "New Room";
   title.innerHTML = "Tools";
