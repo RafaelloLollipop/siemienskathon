@@ -25,12 +25,102 @@ class game(Game):
 		return self
 	
 	def doAction(self, data):
-		update = False
-		print(data)
+		
 		try:
-			player = self.getPlayerById(data['from'])
+			action = data['action']
 		except KeyError:
-			player = False
+			return False
+			
+		try:
+			player = self.getPlayerById(data['id'])
+		except KeyError:
+			return False
+		
+		if not player:
+			return False
+			
+		update = False
+		
+		if action == 'move':
+			args = {}
+			try:
+				args['from'] = data['from']
+			except KeyError:
+				return False
+			try:
+				args['to'] = data['to']
+			except KeyError:
+				return False
+			try:
+				args['weight'] = data['weight']
+			except KeyError:
+				return False
+			
+			if args['from'] == 'available':
+				if args['to'] == 'left' or args['to'] == 'right':
+					if self.moveValueToWeight(player, args['weight'], player.data['dataGame'][args['to']]):
+						data['action'] = 'move_accepted';
+						player.sendMessage(data)
+						return True
+			elif args['from'] == 'left' or args['from'] == 'right':
+				if args['to'] == 'available':
+					if self.moveValueFromWeight(player, args['weight'], player.data['dataGame'][args['from']]):
+						data['action'] = 'move_accepted';
+						player.sendMessage(data)
+						update = True
+				else:
+					if self.moveValueBetweenWeights(player, player.data['dataGame'][args['from']], player.data['dataGame'][args['to']], args['weight']):
+						data['action'] = 'move_accepted';
+						player.sendMessage(data)
+						update = True
+		
+		elif action == 'proposition':
+			args = {}
+			
+			try:
+				args['from'] = data['from']
+			except KeyError:
+				return False
+			try:
+				args['to'] = self.getPlayerById(data['to'])
+			except KeyError:
+				return False
+			try:
+				args['weight'] = data['weight']
+			except KeyError:
+				return False
+				
+			if args['from'] == 'left' or args['from'] == 'right':
+				if not self.moveValueFromWeight(player, args['weight'], player.data['dataGame'][args['from']]):
+					return False
+			if self.setProposition(player, args['to'], args['weight']):
+				data['action'] = 'proposition_accepted'
+				player.sendMessage(data)
+				update = True
+				
+				
+		elif action == "start":
+			if not self.playable:
+				self.start()
+				for player in self.players:
+					player.sendMessage({
+						"action": "updateStatus",
+						"gameStatus": "playable",
+						"playerData": self.getPlayerUpdate(player)
+					})
+				update = True
+		
+		if update:
+			if self.checkWinStatement():
+				for player in self.players:
+					player.sendMessage({
+						"gameStatus": "end",
+						"action": "updateStatus",
+						"winner": self.winner
+					})
+			return True
+			
+		"""
 		
 		try:
 			value = data['value']
@@ -53,20 +143,14 @@ class game(Game):
 					})
 			update = True
 		
-		if data['action'] == "start":
-			if not self.playable:
-				self.start()
-				for player in self.players:
-					player.sendMessage({
-						"action": "updateStatus",
-						"gameStatus": "playable",
-						"playerData": self.getPlayerUpdate(player)
-					})
-			update = True
 			
 		elif data['action'] == "moveValueToWeight":
 			try:
 				weight = data['weight']
+				if int(weight) == 0:
+					weight = self.player.data['dataGame']['left']
+				else:
+					weight = self.player.data['dataGame']['right']
 			except KeyError:
 				weight = False
 				
@@ -84,6 +168,10 @@ class game(Game):
 		elif data['action'] == "moveValueFromWeight":
 			try:
 				weight = data['weight']
+				if int(weight) == 0:
+					weight = self.player.data['dataGame']['propositions']['left']
+				else:
+					weight = self.player.data['dataGame']['propositions']['left']
 			except KeyError:
 				weight = False
 				
@@ -147,7 +235,7 @@ class game(Game):
 			return True
 		
 		return False
-	
+	"""
 	def start(self):
 		self.prepareTeams()
 		self.preparePlayers()
@@ -171,7 +259,7 @@ class game(Game):
 			values = []
 			
 			for player in team.players:
-				player.data['dataGame'] = {"summary": random.randint(5,15), "propositions": {"from": {}, "to": {}}, "weight1": [], "weight2": []}
+				player.data['dataGame'] = {"summary": random.randint(5,15), "propositions": {"from": {}, "to": {}}, "left": [], "right": []}
 				tmp = self.randomizeValues(player.data['dataGame']['summary']) + self.randomizeValues(player.data['dataGame']['summary'])
 				player.data['dataGame']['count'] = len(tmp)
 				values = values + tmp
@@ -179,7 +267,7 @@ class game(Game):
 			random.shuffle(values)
 			
 			for player in team.players:
-				player.data['dataGame']['values'] = values[0:player.data['dataGame']['count']]
+				player.data['dataGame']['available'] = values[0:player.data['dataGame']['count']]
 				values = values[player.data['dataGame']['count']:]
 			
 			for player in team.players:
@@ -189,10 +277,10 @@ class game(Game):
 	
 	def moveValueToWeight(self, player, value, weight):
 		try:
-			index = player.data['dataGame']['values'].index(value)
-			val = player.data['dataGame']['values'][index]
+			index = player.data['dataGame']['available'].index(value)
+			val = player.data['dataGame']['available'][index]
 			weight.append(val)
-			del player.data['dataGame']['values'][index]
+			del player.data['dataGame']['available'][index]
 			return True
 		except ValueError:
 			return False
@@ -201,12 +289,22 @@ class game(Game):
 		try:
 			index = weight.index(value)
 			val = weight[index]
-			player.data['dataGame']['values'].append(val)
+			player.data['dataGame']['available'].append(val)
 			del weight[index]
 			return self
 		except ValueError:
 			return self
 	
+	def moveValueBetweenWeights(self, player, From, To, weight):
+		try:
+			indexFrom = From.index(weight)
+			val = From[indexFrom]
+			To.append(val)
+			del From[indexFrom]
+			return True
+		except ValueError:
+			return False
+					
 	def setProposition(self, playerFrom, playerTo, value):
 		#print(self.checkWinStatement())
 		try:
@@ -214,15 +312,15 @@ class game(Game):
 			return False
 		except KeyError:
 				try:
-					index = playerFrom.data['dataGame']['values'].index(value)
-					playerFrom.data['dataGame']['propositions']['to'][playerTo] = playerFrom.data['dataGame']['values'][index]
-					playerTo.data['dataGame']['propositions']['from'][playerFrom] = playerFrom.data['dataGame']['values'][index]
-					del playerFrom.data['dataGame']['values'][index];
+					index = playerFrom.data['dataGame']['available'].index(value)
+					playerFrom.data['dataGame']['propositions']['to'][playerTo] = playerFrom.data['dataGame']['available'][index]
+					playerTo.data['dataGame']['propositions']['from'][playerFrom] = playerFrom.data['dataGame']['available'][index]
+					del playerFrom.data['dataGame']['available'][index];
 					try:
 						valueToPlayerFrom = playerTo.data['dataGame']['propositions']['to'][playerFrom]
 						valueToPlayerTo = playerFrom.data['dataGame']['propositions']['to'][playerTo]
-						playerTo.data['dataGame']['values'].append(valueToPlayerTo)
-						playerFrom.data['dataGame']['values'].append(valueToPlayerFrom)
+						playerTo.data['dataGame']['available'].append(valueToPlayerTo)
+						playerFrom.data['dataGame']['available'].append(valueToPlayerFrom)
 						del playerTo.data['dataGame']['propositions']['to'][playerFrom]
 						del playerTo.data['dataGame']['propositions']['from'][playerFrom]
 						del playerFrom.data['dataGame']['propositions']['to'][playerTo]
@@ -237,7 +335,7 @@ class game(Game):
 	def removeProposition(self, playerFrom, playerTo):
 		try:
 			valueFrom = playerFrom.data['dataGame']['propositions']['to'][playerTo]
-			playerFrom.data['dataGame']['values'].append(valueFrom)
+			playerFrom.data['dataGame']['available'].append(valueFrom)
 			del playerFrom.data['dataGame']['propositions']['to'][playerTo]
 			del playerTo.data['dataGame']['propositions']['from'][playerFrom]
 			return True
@@ -267,7 +365,7 @@ class game(Game):
 		for team in self.teams:
 			win = True
 			for player in team.players:
-				if sum(player.data['dataGame']['weight1']) == player.data['dataGame']['summary'] and sum(player.data['dataGame']['weight2']) == player.data['dataGame']['summary']:
+				if sum(player.data['dataGame']['left']) == player.data['dataGame']['summary'] and sum(player.data['dataGame']['right']) == player.data['dataGame']['summary']:
 					pass
 				else:
 					win = False
@@ -287,9 +385,9 @@ class game(Game):
 		team = player.team
 		return {
 			"players": [{"name": player.nick, "id": player.id} for player in self.players if player.team == team],
-			"values": player.data['dataGame']['values'],
-			"weight1": player.data['dataGame']['weight1'],
-			"weight2": player.data['dataGame']['weight2'],
+			"values": player.data['dataGame']['available'],
+			"left": player.data['dataGame']['left'],
+			"right": player.data['dataGame']['right'],
 			"from": [{"id": p.id, "value": player.data['dataGame']['propositions']['from'][p]} for p in player.data['dataGame']['propositions']['from'].keys()],
 			"to": [{"id": p.id, "value": player.data['dataGame']['propositions']['to'][p]} for p in player.data['dataGame']['propositions']['to'].keys()]
 		};

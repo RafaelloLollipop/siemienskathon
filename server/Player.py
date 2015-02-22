@@ -6,6 +6,7 @@ if __name__ == "__main__":
 	raise Exception("You cannot run this file directly")
 
 import socket
+import json
 
 class Player(object):
 	
@@ -34,7 +35,8 @@ class Player(object):
 	
 	def sendMessage(self, data):
 		print(data)
-		pass
+		#self.socket.write_message(json.dump({"message": "gameData", "data": data}))
+		return self
 
 """
 HOST = ''                 # Symbolic name meaning all available interfaces
