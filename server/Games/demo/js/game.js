@@ -48,6 +48,10 @@ var Game = function(){
     source.appendChild(child);
   }
 
+  this.end_handler = function(){};
+
+  this.proposition_accepted_handler(){};
+
   this.move_weight = function(from, to, weight, move_id){
     var data = {
       action: "move",
