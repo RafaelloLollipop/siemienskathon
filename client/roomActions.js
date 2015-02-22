@@ -76,7 +76,7 @@ var id = this.getAttribute("room_name");
 };
 
 function roomUpdate(data){
-    
+
     console.log("update");
     console.log(data);
 
@@ -102,7 +102,7 @@ function setContainerDefaultContent(){
 
   var rooms = elementWithId("div","rooms");
 
-  var tools = createTools();
+  var tools = elementWithId("div","tools");
   container.appendChild(preview);
   container.appendChild(rooms);
   container.appendChild(tools);
@@ -111,15 +111,20 @@ function setContainerDefaultContent(){
 };
 
 function createTools(){
-  var tools = elementWithId("div","tools");
-  var new_room = document.createElement("button");
+  var tools = document.getElementById("tools");
+  var new_room = elementWithId("button","new_roow");
   var title = document.createElement("h1");
-  title.innerHTML = "Tools";
-  new_room.innerHTML = "New Room";
-  var data = {"player_id": window.localStorage.getItem("id")}
-  new_room.addEventListener("click",function(){
+  new_room.addEventListener('click',function(){
+    console.log("stuff");
+    var player_name = prompt("Please enter your name:","Magiczny Krzysztof");
+    var data = {"player_id": window.localStorage.getItem("id"),"player_name":player_name};
+
     connection.sendData("new_room", data);
   });
+  new_room.innerHTML = "New Room";
+  title.innerHTML = "Tools";
+
+
   tools.appendChild(title);
   tools.appendChild(new_room);
   return tools;
@@ -127,7 +132,7 @@ function createTools(){
 
 
 function createPreview(){
-  
+
   var info = document.createElement("div");
   var game_name = document.createElement("h2");
   var description = document.createElement("p");
@@ -142,7 +147,7 @@ function createPreview(){
   games_list = JSON.parse(games_list);
 
   var updatePreviewInfo = function(){
-    
+
       var select = document.getElementById("selectGame");
       for(var i=0; i < games_list.length; i++){
         game = games_list[i];
