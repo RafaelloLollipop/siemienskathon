@@ -17,6 +17,9 @@ GamePrototype.prototype.disconnect = function(){
 GamePrototype.prototype.onRoomUpdate = function(){
   throw new Exception("OnRoomUpdate not implemented");
 }
+GamePrototype.prototype.dataHandler = function(){
+  throw new Exception("dataHandler not implemented");
+}
 
 function clone (obj) {
   if (!obj) return;
