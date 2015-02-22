@@ -5,7 +5,7 @@ function createRibbon(){
   innerRibbon.className = "ribbon-green";
   innerRibbon.innerHTML = "No game assigned";
   ribbon.appendChild(innerRibbon);
-  return ribbon;f
+  return ribbon;
 }
 
 
@@ -23,13 +23,18 @@ function showRooms(rooms){
 
     var div = elementWithId("div",room[0]);
     div.className = "room";
+    div.setAttribute("data-id", room[0]);
 
     var ribbon = createRibbon();
     // div.appendChild(ribbon);
 
-    var room_id = document.createElement("p");
+    var room_id = document.createElement("span");
     room_id.className = "room_id";
-    room_id.innerHTML = "Room id: " + room[0];
+    room_id.inner_HTML = room[0];
+
+    var room_name = document.createElement("div");
+    room_name.className = "room_name";
+    room_name.innerHTML = room[4];
 
     var owner = document.createElement("p");
     owner.innerHTML = "Room owner: " + room[1];
@@ -39,36 +44,54 @@ function showRooms(rooms){
     players.innerHTML = "Players: " + room[2] + "/" + room[3];
     players.className = "players"
 
-    div.appendChild(room_id);
+    div.appendChild(room_name);
     div.appendChild(owner);
     div.appendChild(players);
 
-    div.addEventListener('click',joinRoom)
+    div.addEventListener('click',joinRoom);
 
     document.getElementById("rooms").appendChild(div);
   }
 }
 
 function joinRoom(evt){
-  var id = this.getAttribute("room_id");
-  connection.joinRoom(id);
+// <<<<<<< HEAD
+//  var id = this.getAttribute("room_name");
+//  if(document.getElementById("selected_room") !== null){
+//    document.getElementById("selected_room").removeAttribute('id');
+// }
+//  this.id = "selected_room";
+// connection.joinRoom(id);
+//=======
+var id = this.getAttribute("room_name");
+  if(document.getElementById("selected_room") !== null){
+    document.getElementById("selected_room").removeAttribute('id');
+ }
+  this.id = "selected_room";
+  var room_id = this.getAttribute("data-id");
+  var player_name = window.localStorage.getItem("player_name");
+  connection.joinRoom(room_id,player_name);
+//>>>>>>> 0e037ddcf4385d6a7cad707f85568d3bca311b39
   var preview = createPreview();
 };
 
 function roomUpdate(data){
+    
     console.log("update");
+    console.log(data);
 
     window.localStorage.setItem("game_script",data.game_script);
 
     var players_list = document.getElementById("players_list");
     players_list.innerHTML = data.players;
+
 };
 
 function setContainerDefaultContent(){
   var container = document.getElementById("container");
 
   var preview = elementWithId("div","room_preview");
-  var welcome = elementWithId("h2","welcome");
+  var welcome = elementWithId("h1","welcome");
   welcome.innerHTML = "Welcome!"
   var info = elementWithId("p","info");
   info.innerHTML += 'Click on any of the boxes on the left '
@@ -77,7 +100,6 @@ function setContainerDefaultContent(){
   preview.appendChild(welcome);
   preview.appendChild(info);
 
-
   var rooms = elementWithId("div","rooms");
 
   var tools = createTools();
@@ -85,6 +107,7 @@ function setContainerDefaultContent(){
   container.appendChild(rooms);
   container.appendChild(tools);
   container.innerHTML += '<br style="clear: left;" />';
+  createTools();
 };
 
 function createTools(){
@@ -102,17 +125,44 @@ function createTools(){
   return tools;
 };
 
+
 function createPreview(){
-  var preview = document.getElementById("room_preview");
-  preview.innerHTML = "";
+  
   var info = document.createElement("div");
-  var game_name = document.createElement("p");
+  var game_name = document.createElement("h2");
+  var description = document.createElement("p");
+  var author = document.createElement("span");
+  var version = document.createElement("span");
   var players = elementWithId("div","players_list");
   var chat = document.createElement("div");
+  var id = document.createElement("span");
+
+  var games_list = window.localStorage.getItem("game_list");
+
+  games_list = JSON.parse(games_list);
+
+  var updatePreviewInfo = function(){
+    
+      var select = document.getElementById("selectGame");
+      for(var i=0; i < games_list.length; i++){
+        game = games_list[i];
+        if (games_list[i].name == select.value){
+          id.innerHTML = "Room number " + document.getElementById("selected_room").getAttribute('data-id') + " currently playing:";
+          id.id = "room_id_preview";
+          description.innerHTML = game.description;
+          author.innerHTML = "author: " + game.author + "<br />";
+          version.innerHTML = "version: " + game.version + "<br /><br />";
+        }
+      }
+      game_name.innerHTML = select.value;
+  }
+
+  var preview = document.getElementById("room_preview");
+  preview.innerHTML = "";
 
   var ready_button = document.createElement("button");
-  ready_button.innerHTML = "Ready!"
-  ready_button.addEventListener("click",function(){
+  ready_button.innerHTML = "Ready!";
+  ready_button.addEventListener('click',function(){
     connection.sendMessage("ready");
     var game_script = window.localStorage.getItem("game_script");
     loadScript(game_script,initializeGame);
@@ -122,26 +172,30 @@ function createPreview(){
   selectGame_button.innerHTML = "Select game";
   selectGame_button.addEventListener('click',function(){
       var select = document.getElementById("selectGame");
-      connection.selectGame(select.value);
+      updatePreviewInfo();
   });
 
-
   var selectGame = elementWithId("select","selectGame");
-  var games_list = window.localStorage.getItem("game_list");
 
-  games_list = JSON.parse(games_list);
 
   for(option_id in games_list){
     var option = document.createElement("option");
     option.innerHTML = games_list[option_id].name;
     selectGame.appendChild(option);
   }
+  preview.appendChild(id);
+    preview.appendChild(game_name);
 
-  preview.appendChild(game_name);
+  preview.appendChild(description);
+  preview.appendChild(author);
+  preview.appendChild(version);
   preview.appendChild(players);
   preview.appendChild(ready_button);
   preview.appendChild(selectGame);
   preview.appendChild(selectGame_button);
+
+  updatePreviewInfo();
+
   return preview;
 };
 
