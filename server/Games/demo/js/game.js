@@ -1,3 +1,4 @@
+// Game.prototype = clone(GamePrototype.prototype);
 var Game = function(){
 	var that = this;
   var id = window.localStorage.getItem("id");
@@ -143,5 +144,3 @@ var Game = function(){
   }
 
 }
-
-Game.prototype = clone(GamePrototype.prototype);
