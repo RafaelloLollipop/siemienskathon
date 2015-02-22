@@ -16,10 +16,18 @@
     <script type="text/javascript">
       var connection;
 
+      window.localStorage.setItem("id","mojeID");
+
       function connect(){
         var address = window.localStorage.getItem("host");
         var port = window.localStorage.getItem("port");
         connection = new Connection(address, port);
+
+      }
+
+      function setGameList(game_list){
+        var stringified = JSON.stringify(game_list);
+        window.localStorage.setItem("game_list",stringified);
       }
 
 

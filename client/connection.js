@@ -8,6 +8,8 @@ Connection.prototype.init = function(){
   console.log("Initializing connection");
 
   this.websocket = new WebSocket(this.server_uri);
+
+  console.log(this.websocket);
   var _this = this;
 
   this.websocket.onopen = function (evt){_this.onOpen(evt);};
@@ -18,6 +20,7 @@ Connection.prototype.init = function(){
 
 Connection.prototype.onOpen = function(evt){
   this.sendMessage("connectToServer");
+  this.sendMessage("gameList");
   console.log("Connecting to server...");
 };
 
@@ -29,14 +32,15 @@ Connection.prototype.onClose = function(evt){
 Connection.prototype.onMessage = function(evt){
 
   try{
-    var data = evt.data;
-    data = JSON.parse(data);
+    var parsed = evt.data;
+    parsed = JSON.parse(parsed);
   }catch(e){
     console.log(e);
     return;
   }
 
-  var message = data.message;
+  var message = parsed.message;
+  var data = parsed.data;
 
   switch(message){
 
@@ -44,6 +48,7 @@ Connection.prototype.onMessage = function(evt){
     case "disconnect": window.game.onDisconnect();break;
     case "roomUpdate": window.roomUpdate(data);break;
     case "start": window.game.onStart();break;
+    case "gameList":window.setGameList(data.game_list);break;
 
     default : console.log("Unsupported message");
   }
