@@ -35,7 +35,10 @@ document.getElementsByTagName( "head" )[0].appendChild( link );
   };
 
   this.onStart = function(data){
-	  console.log(data)
+	  console.log([data.action, data])
+	 if(data.action == "updateStatus"){
+		 data=data.playerData;
+	 }
     this.players = data["players"];
     this.weights["left"] = data["left"];
     this.weights["right"] = data["right"];
@@ -43,13 +46,17 @@ document.getElementsByTagName( "head" )[0].appendChild( link );
     this.my_propositions = data["to"];
     this.foreign_propositions = data["from"];
 
-    for(i in players){
+    for(i in this.players){
       this.players[i]['waitlist'] = {};	// initialize empty waitlist associated with each player
     }
+    $('div#container').html('<ul id="left" class="scale droppable"></ul><ul id="right" class="scale droppable"></ul><ul id="available" class="droppable"></ul><ul id="send"></ul>');
   };
 
   this.dataHandler = function(data){
-  console.log(data)
+	 if(data.action == "updateStatus"){
+		 that.onStart(data.playerData)
+		 return false;
+	 }
 
     switch(data.action){
       case "move_accepted":this.move_accept_handler();break;
@@ -135,11 +142,11 @@ document.getElementsByTagName( "head" )[0].appendChild( link );
       $("#left").append(this.createWeightHTML(weight));
     }
     for(i in this.weights["right"]){
-      var weight = (this.weights["left"][i]);
+      var weight = (this.weights["right"][i]);
       $("#right").append(this.createWeightHTML(weight));
     }
     for(i in this.weights["available"]){
-      var weight = (this.weights["left"][i]);
+      var weight = (this.weights["available"][i]);
       $("#available").append(this.createWeightHTML(weight));
     }
   };
