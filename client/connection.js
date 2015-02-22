@@ -50,6 +50,7 @@ Connection.prototype.onMessage = function(evt){
     case "roomUpdate": window.roomUpdate(data);break;
     case "start": window.game.onStart();break;
     case "gameList":window.setGameList(data.game_list);break;
+    case "gameData":window.game.dataHandler();break;
 
     default : console.log("Unsupported message");
   }
