@@ -20,6 +20,7 @@ Connection.prototype.init = function(){
 
 Connection.prototype.onOpen = function(evt){
   this.sendMessage("connectToServer");
+  this.sendMessage("gameList");
   console.log("Connecting to server...");
 };
 
@@ -31,19 +32,19 @@ Connection.prototype.onClose = function(evt){
 Connection.prototype.onMessage = function(evt){
 
   try{
-    var data = evt.data;
-    data = JSON.parse(data);
+    var parsed = evt.data;
+    parsed = JSON.parse(parsed);
   }catch(e){
     console.log(e);
     return;
   }
 
-  var message = data.message;
-
+  var message = parsed.message;
+  var data = parsed.data;
 
   switch(message){
 
-    case "rooms" : window.showRooms(data.data.rooms);break;
+    case "rooms" : window.showRooms(data.rooms);break;
     case "disconnect": window.game.onDisconnect();break;
     case "roomUpdate": window.roomUpdate(data);break;
     case "start": window.game.onStart();break;
