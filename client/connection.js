@@ -8,6 +8,8 @@ Connection.prototype.init = function(){
   console.log("Initializing connection");
 
   this.websocket = new WebSocket(this.server_uri);
+
+  console.log(this.websocket);
   var _this = this;
 
   this.websocket.onopen = function (evt){_this.onOpen(evt);};
@@ -38,12 +40,14 @@ Connection.prototype.onMessage = function(evt){
 
   var message = data.message;
 
+
   switch(message){
 
-    case "rooms" : window.showRooms(data.rooms);break;
+    case "rooms" : window.showRooms(data.data.rooms);break;
     case "disconnect": window.game.onDisconnect();break;
     case "roomUpdate": window.roomUpdate(data);break;
     case "start": window.game.onStart();break;
+    case "gameList":window.setGameList(data.game_list);break;
 
     default : console.log("Unsupported message");
   }
