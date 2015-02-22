@@ -5,7 +5,7 @@ function createRibbon(){
   innerRibbon.className = "ribbon-green";
   innerRibbon.innerHTML = "No game assigned";
   ribbon.appendChild(innerRibbon);
-  return ribbon
+  return ribbon;f
 }
 
 
@@ -52,24 +52,7 @@ function showRooms(rooms){
 function joinRoom(evt){
   var id = this.getAttribute("room_id");
   connection.joinRoom(id);
-  var preview = document.getElementById("room_preview");
-  preview.innerHTML = "";
-
-  var game_name = document.createElement("p");
-  var players = elementWithId("div","players_list");
-  var chat = document.createElement("div");
-
-  var ready_button = document.createElement("button");
-  ready_button.innerHTML = "Ready!"
-  ready_button.addEventListener("click",function(){
-    connection.sendMessage("ready");
-    var game_script = window.localStorage.getItem("game_script");
-    loadScript(game_script,initializeGame);
-  });
-
-  preview.appendChild(game_name);
-  preview.appendChild(players);
-  preview.appendChild(ready_button);
+  var preview = createPreview();
 };
 
 function roomUpdate(data){
@@ -96,13 +79,74 @@ function setContainerDefaultContent(){
 
 
   var rooms = elementWithId("div","rooms");
+
+  var tools = createTools();
   container.appendChild(preview);
   container.appendChild(rooms);
+  container.appendChild(tools);
   container.innerHTML += '<br style="clear: left;" />';
+};
+
+function createTools(){
+  var tools = elementWithId("div","tools");
+  var new_room = document.createElement("button");
+  var title = document.createElement("h1");
+  title.innerHTML = "Tools";
+  new_room.innerHTML = "New Room";
+  var data = {"player_id": window.localStorage.getItem("id")}
+  new_room.addEventListener("click",function(){
+    connection.sendData("new_room", data);
+  });
+  tools.appendChild(title);
+  tools.appendChild(new_room);
+  return tools;
+};
+
+function createPreview(){
+  var preview = document.getElementById("room_preview");
+  preview.innerHTML = "";
+  var info = document.createElement("div");
+  var game_name = document.createElement("p");
+  var players = elementWithId("div","players_list");
+  var chat = document.createElement("div");
+
+  var ready_button = document.createElement("button");
+  ready_button.innerHTML = "Ready!"
+  ready_button.addEventListener("click",function(){
+    connection.sendMessage("ready");
+    var game_script = window.localStorage.getItem("game_script");
+    loadScript(game_script,initializeGame);
+  });
+
+  var selectGame_button = document.createElement("button");
+  selectGame_button.innerHTML = "Select game";
+  selectGame_button.addEventListener('click',function(){
+      var select = document.getElementById("selectGame");
+      connection.selectGame(select.value);
+  });
+
+
+  var selectGame = elementWithId("select","selectGame");
+  var games_list = window.localStorage.getItem("game_list");
+
+  games_list = JSON.parse(games_list);
+
+  for(option_id in games_list){
+    var option = document.createElement("option");
+    option.innerHTML = games_list[option_id];
+    selectGame.appendChild(option);
+  }
+
+  preview.appendChild(game_name);
+  preview.appendChild(players);
+  preview.appendChild(ready_button);
+  preview.appendChild(selectGame);
+  preview.appendChild(selectGame_button);
+  return preview;
 };
 
 function elementWithId(type, id){
   var element = document.createElement(type);
   element.setAttribute("id",id);
   return element;
-}
+};
