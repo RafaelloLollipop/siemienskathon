@@ -1,8 +1,29 @@
-var Game = function(){
+// DODAJ http://code.jquery.com/ui/1.8.21/jquery-ui.min.js DO KLIENTA
+
+$( document ).ready(function(){
+  $('div#container').html('<ul id="left" class="scale droppable"></ul><ul id="right" class="scale droppable"></ul><ul id="available" class="droppable"></ul><ul id="send"></ul>');
+});
+
+
+file = location.pathname.split( "/" ).pop();
+
+link = document.createElement( "link" );
+link.href = file.substr( 0, file.lastIndexOf( "." ) ) + ".css";
+link.type = "text/css";
+link.rel = "stylesheet";
+link.media = "screen,print";
+
+document.getElementsByTagName( "head" )[0].appendChild( link );
+
+
+var Game = function() {
 	var that = this;
   var id = window.localStorage.getItem("id");
 
   this.init = function (){
+
+
+
     this.weights = {"left" : [], "right" : [], "available" : []};
     this.data = {};
     this.player = {};
@@ -74,7 +95,8 @@ var Game = function(){
           window.connection.sendGameData(data);
       }
     }
-  }
+  };
+
   this.updateUI = function(){
     var left = $("#left");
     var right = $("#right");
@@ -96,7 +118,7 @@ var Game = function(){
       var weight = (this.weights["left"][i]);
       $("#available").append(this.createWeightHTML(weight));
     }
-  }
+  };
 
 	this.reset = function(){
 		$( ".droppable" ).sortable({
@@ -142,7 +164,6 @@ var Game = function(){
 				}
 				else{
 					var player = ui.sender.attr('data-id');
-
 					that.cancelExchange(weight, player);
 					that.scales[to].push(parseInt(weight));
 				}
@@ -158,7 +179,7 @@ var Game = function(){
 			}
 		  }
 		}).disableSelection();
-	}
+	};
 
   this.createWeightHTML = function(weight){
     switch(true){
@@ -168,7 +189,9 @@ var Game = function(){
     }
     var html = '<li class="weight '+class_+' ui-state-default" data-weight="' + weight + '">' + weight + ' kg</li>'
     return html;
-  }
+  };
+
+
 
 }
 
