@@ -5,8 +5,9 @@ function createRibbon(){
   innerRibbon.className = "ribbon-green";
   innerRibbon.innerHTML = "No game assigned";
   ribbon.appendChild(innerRibbon);
-  return ribbon;
+  return ribbon;f
 }
+
 
 function showRooms(rooms){
 
@@ -53,13 +54,12 @@ function joinRoom(evt){
   var player_name = window.localStorage.getItem("player_name");
   connection.joinRoom(id,player_name);
   var preview = createPreview();
-
 };
 
 function roomUpdate(data){
     console.log("update");
 
-    window.localStorage.setItem("game_script", data.game_script);
+    window.localStorage.setItem("game_script",data.game_script);
 
     var players_list = document.getElementById("players_list");
     players_list.innerHTML = data.players;
@@ -81,33 +81,27 @@ function setContainerDefaultContent(){
 
   var rooms = elementWithId("div","rooms");
 
-  var tools = elementWithId("div","tools");
-
+  var tools = createTools();
   container.appendChild(preview);
   container.appendChild(rooms);
   container.appendChild(tools);
   container.innerHTML += '<br style="clear: left;" />';
-
   createTools();
 };
 
-function createTools(container){
-  var tools = document.getElementById("tools");
-  var new_room_button = elementWithId("button","new_room");
+function createTools(){
+  var tools = elementWithId("div","tools");
+  var new_room = document.createElement("button");
   var title = document.createElement("h1");
-
   title.innerHTML = "Tools";
-
-  new_room_button.addEventListener('click', function(){
-    var room_name = prompt("Type your room name:","defaultName"+Math.floor(Math.random()*100));
-    var data = {"player_id": window.localStorage.getItem("id"),"room_name":room_name};
-
-    connection.sendData("newRoom", data);
+  new_room.innerHTML = "New Room";
+  var data = {"player_id": window.localStorage.getItem("id")}
+  new_room.addEventListener("click",function(){
+    connection.sendData("new_room", data);
   });
-  new_room_button.innerHTML = "New Room";
-
   tools.appendChild(title);
-  tools.appendChild(new_room_button);
+  tools.appendChild(new_room);
+  return tools;
 };
 
 function createPreview(){
@@ -141,7 +135,7 @@ function createPreview(){
 
   for(option_id in games_list){
     var option = document.createElement("option");
-    option.innerHTML = games_list[option_id];
+    option.innerHTML = games_list[option_id].name;
     selectGame.appendChild(option);
   }
 
@@ -150,7 +144,6 @@ function createPreview(){
   preview.appendChild(ready_button);
   preview.appendChild(selectGame);
   preview.appendChild(selectGame_button);
-
   return preview;
 };
 
