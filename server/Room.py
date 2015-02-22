@@ -1,11 +1,13 @@
 class Room(object):
-    def __init__(self, room_id):
-        self.room_id = room_id
+    def __init__(self, admin_id, room_name):
+        self.room_id = id(self)
+        self.room_name = room_name
+        self.admin_id = admin_id
+        self.max_players = 8
         self.players = []
-        self.game
 
     def add_player(self, player):
-        pass
+        self.players.append(player)
 
     def remove_player(self, player):
         pass

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import socket
-
+import ctypes
 if __name__ == "__main__":
 	raise Exception("You cannot run this file directly")
 
@@ -11,12 +11,16 @@ import json
 class Player(object):
 	
 	def __init__(self, socket, nick):
-		self.socket = socket
+		self._socket = id(socket)
 		self.room = None
 		self.id = id(self)
 		self.nick = nick
 		self.data = {}
 		
+	@property
+	def socket(self):
+		return ctypes.cast(self._socket, ctypes.py_object).value
+
 	def addToRoom(self, room):
 		self.room = room
 		return self

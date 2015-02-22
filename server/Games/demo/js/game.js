@@ -1,216 +1,147 @@
-/**
- * example game
- * 
- **/
 var Game = function(){
 	var that = this;
-	
-	this.data = {
-		weights : [5, 5, 2, 1, 1],
-		players : [
-			{name:"Adamnie", id:1},
-			{name:"Rosiu", id:2},
-			{name:"Megs", id:3},
-			{name:"Rafix", id:4} ]
-		};
-	this.scales = {"left" : [0], "right" : [0], "available" : [0]};
-	
-	this.player = {name:"Antek", id:8};
-	this.players = this.data.players;
+  var id = window.localStorage.getItem("id");
 
-	for(var i = 0; i< that.players.length; i++){
-		that.players[i]['waitlist'] = {};	// initialize empty waitlist associated with each player
-	}
-	
-	
-	this.sendRequestToExchange = function(weight, id, item){
-		for(var i = 0; i< that.players.length; i++){
-			if (that.players[i].id == id && $.isEmptyObject(that.players[i]['waitlist']) ) {
-				that.players[i]['waitlist'] = {'weight':weight, 'init':that.player.id, 'uiHandler':item};	// send request, associate it with my id and remember item handler (!)
-				alert("Waiting for acceptance from player " + that.players[i].name);
-			}
-		}
-	}
+  this.init = function (){
+    this.weights = {"left" : [], "right" : [], "available" : []};
+    this.data = {};
+    this.player = {};
+    this.players = [];
+    this.foreign_propositions = [];
+    this.my_propositions = [];
+    this.weight_count = 0;
+  };
 
-	// my friend accepted my proposition, yay
-	this.handleAcceptToExchange = function(weight, id, acceptedWeight){
-		for(var i = 0; i < that.players.length; i++)
-		{
-			if (that.players[i].id == id && that.players[i].waitlist.weight == weight){
-				that.players[i].waitlist.uiHandler.remove(); //delete from view, but SHOULD BE FROM THE MODEL!
-				that.receive(acceptedWeight); // recieve new 
-				that.waitlist = {}; // delete task from waitlist
-				alert("Exchange with player " + that.players[i].name + " accepted!");
-			}
-		}
-	}
+  this.onStart = function(data){
+    this.players = data["players"];
+    this.weights["left"] = data["left"];
+    this.weights["right"] = data["right"];
+    this.weights["available"] = data["available"];
+    this.my_propositions = data["to"];
+    this.foreign_propositions = data["from"];
 
-	// lol nope, changed my mind
-	this.cancelExchange = function(weight, id){
-		for(var i = 0; i < that.players.length; i++)
-		{
-		  if(that.players[i].id == id && that.players[i].waitlist.weight == weight){
-			that.players[i].waitlist = {};
-			alert("You changed your mind.");
-		  }
-		}
-	}
-	
+    for(i in players){
+      this.players[i]['waitlist'] = {};	// initialize empty waitlist associated with each player
+    }
+  };
 
-	// someone somwehere likes mey and wants to exchange
-	this.handleProposalOfExchange = function(json){
-		playerId = json.playerId;
-		weight = json.weight;
-		if (weight < 3){
-			var class_ = "small";
-		}
-		else if (weight >=3 && weight < 6){
-			var class_ = "medium";
-		}
-		else if (weight >=6 ){
-			var class_ = "big";
-		}
-		$('li[data-id='+playerId+']').append('<li class="weight '+class_+' proposition ui-state-default" data-weight="' + weight + '">' + weight + ' kg</li>');
-		for (var i=0; i<that.players.length; i++){
-			if (that.players[i].id == playerId){
-				that.players[i]['waitlist'] = {'weight':weight, 'init':playerId};
-			}
-		}
-		
-		//$( "li[data-id="+playerId+"]").sortable("disable");
-	}
-	
+  this.dataHandler = function(data){
+    switch(data.action){
+      case "move_accepted":this.move_accept_handler();break;
+      case "move_rejected":this.move_rejected_handler();break;
+      case "proposition_accepted":this.proposition_accepted_handler();break;
+      case "end":this.end_handler();break;
+    }
+  };
 
-	// i hereby accept your generous offer
-	this.acceptProposalOfExchange = function(weight, playerId, uiHandler){
-		// TODO - SEND ACCEPTANCE TO SERVER
-		if (that.players[playerId]['waitlist'].weight == weight && that.players[playerId]['waitlist'].init == playerId){
-			uiHandler.remove();
-			that.players[playerId]['waitlist'] = {};
-		}
-	}	
-	
-	this.receive = function(weight){
-		if (weight < 3){
-			var class_ = "small";
-		}
-		else if (weight >=3 && weight < 6){
-			var class_ = "medium";
-		}
-		else if (weight >=6 ){
-			var class_ = "big";
-		}
+  this.move_accept_handler = function(){};
 
-		$('#available').append('<li class="weight '+class_+' ui-state-default" data-weight="' + weight + '">' + weight + ' kg</li>');
-		that.scales.available.push(weight);
-	}
-	
-	
+  this.move_rejected_handler = function(data){
+    var move_id = data.move_id;
+    var move_data = this.moves.splice(move_id,1);
+
+    var dest = $('#'+move_data[1]);
+    var child_ind = dest.children.indexOf(move_data[2]);
+    var child = dest.childNodes(child_ind);
+    dest.removeChild(child);
+    var source = $('#'+move_data[0]);
+    source.appendChild(child);
+  }
+
+  this.end_handler = function(){};
+
+  this.proposition_accepted_handler(){};
+
+  this.move_weight = function(from, to, weight, move_id){
+    var data = {
+      action: "move",
+      from: from,
+      to: to,
+      weight: weight,
+      id : id,
+      move_id : move_id
+    }
+    window.connection.sendGameData(data);
+  };
+
+  this.make_proposition = function(from, to, weight){
+    var data = {
+      action: "proposition",
+      from: from,
+      to: to,
+      weight: weight,
+      id : id
+    }
+    window.connection.sendGameData(data);
+  };
+
+  this.remove_proposition = function(from,to,weight){
+    for(i in this.my_propositions){
+      var proposition = this.my_propositions[i];
+      if(proposition["from"] == from &&
+         proposition["to"] == to &&
+         proposition["weight"] == weight){
+
+      this.my_propositions.splice(i,1);
+          var data = {
+            action: "remove_proposition",
+            from: from,
+            to: to,
+            weight: weight,
+            id : id
+          };
+          window.connection.sendGameData(data);
+      }
+    }
+  }
+  this.updateUI = function(){
+    var left = $("#left");
+    var right = $("#right");
+    var available = $("#available");
+
+    left.empty();
+    right.empty();
+    available.empty();
+
+    for(i in this.weights["left"]){
+      var weight = (this.weights["left"][i]);
+      $("#left").append(this.createWeightHTML(weight));
+    }
+    for(i in this.weights["right"]){
+      var weight = (this.weights["left"][i]);
+      $("#right").append(this.createWeightHTML(weight));
+    }
+    for(i in this.weights["available"]){
+      var weight = (this.weights["left"][i]);
+      $("#available").append(this.createWeightHTML(weight));
+    }
+  }
 
 	this.reset = function(){
-		$('#available').empty();
-		that.scales.left = [];
-		that.scales.right = [];
-		that.scales.available = that.data.weights;
-
-		for(i = 0; i < that.data.weights.length; i++){
-			weight = that.data.weights[i];
-			if (weight < 3){
-				var class_ = "small";
-			}
-			else if (weight >=3 && weight < 6){
-				var class_ = "medium";
-			}
-			else if (weight >=6 ){
-				var class_ = "big";
-			}
-			$('#available').append('<li class="weight '+class_+' ui-state-default" data-weight="' + that.data.weights[i] + '">' + that.data.weights[i] + ' kg</li>');
-		}
-
-		for(i = 0; i < that.data.players.length; i++){
-			$('#send').append('<li class="player droppable ui-state-default" id="send" data-id="' + that.data.players[i].id + '">' + that.data.players[i].name + '</li>');
-		}
-
 		$( ".droppable" ).sortable({
 		  connectWith: ".droppable",
+
 		  receive: function(event, ui) {
-			to = this.id;
-			from = ui.sender.attr('id');
-			weight = ui.item.attr('data-weight');
-			console.log("FROM " + from + " TO: " + to);
+  			dest = this.id;
+  			from = ui.sender.attr('id');
+  			weight = ui.item.attr('data-weight');
 
-			if (to == "send" && from == "send" && ui.item.hasClass('proposition')){
-
-				$(ui.sender).sortable('cancel');
-			}
-
-			if (to == "send") {
-
-				if ($(this).children().length > 1) {	
-					to = this.getAttribute('data-id');
-					if ($('li[data-id='+to+']').children().hasClass('proposition')){
-						newWeight = $('li[data-id='+to+']').children('.proposition');
-						that.acceptProposalOfExchange(newWeight.attr('data-weight'), to, $('li[data-id='+to+']').children('.proposition'));
-						ui.item.remove();
-						that.scales[from].splice(that.scales[from].indexOf(parseInt(weight)),1);
-						that.receive(newWeight.attr('data-weight'));
-						alert("Exchange successful.");
-					}
-					else {
-						$(ui.sender).sortable('cancel');
-					}
-				}
-				
-				else{
-					to = this.getAttribute('data-id');
-					that.scales[from].splice(that.scales[from].indexOf(parseInt(weight)),1);
-					that.sendRequestToExchange(weight, to, ui.item);
-					that.updateModel();
-				}
-			}
-			else if (from == "send") {
-				if (ui.item.hasClass('proposition')){	
-					$(ui.sender).sortable('cancel');
-				}
-				else{
-					var player = ui.sender.attr('data-id');
-
-					that.cancelExchange(weight, player);
-					that.scales[to].push(parseInt(weight));
-				}
-			}
-			else {
-				that.scales[from].splice(that.scales[from].indexOf(parseInt(weight)),1);
-				that.scales[to].push(parseInt(weight));
-				console.log("Left " + that.scales.left);
-				console.log("Right " + that.scales.right);
-				console.log("Unused " + that.scales.available);
-				that.updateModel();
-
-			}
+        that.move_weight(from,dest,weight,this.moves.length);
+        that.moves.push([from,dest,weight]);
 		  }
 		}).disableSelection();
 	}
 
-	this.updateModel = function(){
-		if (that.scales.left.length > 0){
-			var sumLeft = that.scales.left.reduce(function(a,b){return a+b;});
-		}
-		else{
-			var sumLeft = 0;
-		}
-		if (that.scales.right.length > 0){
-			var sumRight = that.scales.right.reduce(function(a,b){return a+b;});
-		}
-		else{
-			var sumRight = 0;
-		}
-		if (sumLeft == sumRight && sumLeft != 0 && sumRight != 0 && that.scales.available.length == 0){
-			alert('Balanced!');
-		}
-	}
-	
+  this.createWeightHTML = function(weight){
+    switch(true){
+      case (weight <=3): class_ = "small";break;
+      case (weight >=6): class_ = "large";break;
+      default : class_ = "medium";
+    }
+    var html = '<li class="weight '+class_+' ui-state-default" data-weight="' + weight + '">' + weight + ' kg</li>'
+    return html;
+  }
+
 }
 
 Game.prototype = clone(GamePrototype.prototype);
-//Game = new Game()
