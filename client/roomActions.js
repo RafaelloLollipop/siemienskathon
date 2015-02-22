@@ -48,19 +48,30 @@ function showRooms(rooms){
     div.appendChild(owner);
     div.appendChild(players);
 
-    div.addEventListener('click',joinRoom)
+    div.addEventListener('click',joinRoom);
 
     document.getElementById("rooms").appendChild(div);
   }
 }
 
 function joinRoom(evt){
-  var id = this.getAttribute("room_name");
+// <<<<<<< HEAD
+//  var id = this.getAttribute("room_name");
+//  if(document.getElementById("selected_room") !== null){
+//    document.getElementById("selected_room").removeAttribute('id');
+// }
+//  this.id = "selected_room";
+// connection.joinRoom(id);
+//=======
+var id = this.getAttribute("room_name");
   if(document.getElementById("selected_room") !== null){
     document.getElementById("selected_room").removeAttribute('id');
-  }
+ }
   this.id = "selected_room";
-  connection.joinRoom(id);
+  var room_id = this.getAttribute("data-id");
+  var player_name = window.localStorage.getItem("player_name");
+  connection.joinRoom(room_id,player_name);
+//>>>>>>> 0e037ddcf4385d6a7cad707f85568d3bca311b39
   var preview = createPreview();
 };
 
@@ -96,6 +107,7 @@ function setContainerDefaultContent(){
   container.appendChild(rooms);
   container.appendChild(tools);
   container.innerHTML += '<br style="clear: left;" />';
+  createTools();
 };
 
 function createTools(){
@@ -149,8 +161,8 @@ function createPreview(){
   preview.innerHTML = "";
 
   var ready_button = document.createElement("button");
-  ready_button.innerHTML = "Ready!"
-  ready_button.addEventListener("click",function(){
+  ready_button.innerHTML = "Ready!";
+  ready_button.addEventListener('click',function(){
     connection.sendMessage("ready");
     var game_script = window.localStorage.getItem("game_script");
     loadScript(game_script,initializeGame);

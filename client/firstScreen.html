@@ -8,6 +8,8 @@
   </head>
   <body>
     <div id="form">
+      <label for="player_name">Your name:</label>
+      <input type="text" id="player_name" value="Magiczny Krzysztof" /><br />
       <label for="host">Server address:</label>
       <input type="text" id="host" value="192.168.0.10" /><br />
       <label for="port">Server port:</label>
@@ -25,10 +27,12 @@
 
         var host = $("#host").val();
         var port = $("#port").val();
+        var name = $("#player_name").val();
 
         if(host != "" && port !=""){
-          window.localStorage.setItem("host",host);
-          window.localStorage.setItem("port",port);
+          window.localStorage.setItem("player_name", name);
+          window.localStorage.setItem("host", host);
+          window.localStorage.setItem("port", port);
           window.location.href = "./index.html";
         }else{
           alert("You must provide valid server address and port");

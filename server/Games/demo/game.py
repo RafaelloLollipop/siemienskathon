@@ -123,8 +123,8 @@ class Demo(Game):
 			except KeyError:
 				playerTo = False
 				
-			if playerTo and player and value:
-				data['success'] = self.removeProposition(player, playerTo, value)
+			if playerTo and player:
+				data['success'] = self.removeProposition(player, playerTo)
 			else:
 				data['success'] = False
 			

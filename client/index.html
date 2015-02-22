@@ -8,15 +8,13 @@
     <div id ="container">
 
     </div>
-
+    <script type="text/javascript" src="./Exception.js"></script>
     <script type="text/javascript" src="./connection.js"></script>
     <script type="text/javascript" src="./getScript.js"></script>
-    <script type="text/javascript" src="./roomActions.js"></script>
     <script src="http://code.jquery.com/jquery.min.js"></script>
+    <script type="text/javascript" src="./GamePrototype.js"></script>
     <script type="text/javascript">
       var connection;
-
-      window.localStorage.setItem("id","mojeID");
 
       function connect(){
         var address = window.localStorage.getItem("host");
@@ -40,10 +38,11 @@
       }
 
       $(document).ready(function(){
-        setContainerDefaultContent();
         connect();
+        setContainerDefaultContent();
       });
 
     </script>
+    <script type="text/javascript" src="./roomActions.js"></script>
   </body>
 </html>
