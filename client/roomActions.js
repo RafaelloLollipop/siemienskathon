@@ -113,7 +113,7 @@ function createTools(){
     var room_name = prompt("Please enter your room name:","Magiczny Pokoj");
     var data = {"room_name": room_name};
 
-    connection.sendData("new_room", data);
+    connection.sendData("newRoom", data);
   });
   new_room.innerHTML = "New Room";
   title.innerHTML = "Tools";
