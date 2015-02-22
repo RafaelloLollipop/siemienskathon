@@ -27,20 +27,35 @@ var Game = function(){
 
   this.dataHandler = function(data){
     switch(data.action){
-      case "move_accepted":break;
-      case "move_rejected":break;
-      case "proposition_accepted":break;
-      case "end":break;
+      case "move_accepted":this.move_accept_handler();break;
+      case "move_rejected":this.move_rejected_handler();break;
+      case "proposition_accepted":this.proposition_accepted_handler();break;
+      case "end":this.end_handler();break;
     }
   };
 
-  this.move_weight = function(from, to, weight){
+  this.move_accept_handler = function(){};
+
+  this.move_rejected_handler = function(data){
+    var move_id = data.move_id;
+    var move_data = this.moves.splice(move_id,1);
+
+    var dest = $('#'+move_data[1]);
+    var child_ind = dest.children.indexOf(move_data[2]);
+    var child = dest.childNodes(child_ind);
+    dest.removeChild(child);
+    var source = $('#'+move_data[0]);
+    source.appendChild(child);
+  }
+
+  this.move_weight = function(from, to, weight, move_id){
     var data = {
       action: "move",
       from: from,
       to: to,
       weight: weight,
-      id : id
+      id : id,
+      move_id : move_id
     }
     window.connection.sendGameData(data);
   };
@@ -103,59 +118,12 @@ var Game = function(){
 		  connectWith: ".droppable",
 
 		  receive: function(event, ui) {
-			to = this.id;
-			from = ui.sender.attr('id');
-			weight = ui.item.attr('data-weight');
+  			dest = this.id;
+  			from = ui.sender.attr('id');
+  			weight = ui.item.attr('data-weight');
 
-			if (to == "send" && from == "send" && ui.item.hasClass('proposition')){
-
-				$(ui.sender).sortable('cancel');
-			}
-
-			if (to == "send") {
-
-				if ($(this).children().length > 1) {
-					to = this.getAttribute('data-id');
-					if ($('li[data-id='+to+']').children().hasClass('proposition')){
-						newWeight = $('li[data-id='+to+']').children('.proposition');
-						that.acceptProposalOfExchange(newWeight.attr('data-weight'), to, $('li[data-id='+to+']').children('.proposition'));
-						ui.item.remove();
-						that.scales[from].splice(that.scales[from].indexOf(parseInt(weight)),1);
-						that.receive(newWeight.attr('data-weight'));
-						alert("Exchange successful.");
-					}
-					else {
-						$(ui.sender).sortable('cancel');
-					}
-				}
-
-				else{
-					to = this.getAttribute('data-id');
-					that.scales[from].splice(that.scales[from].indexOf(parseInt(weight)),1);
-					that.sendRequestToExchange(weight, to, ui.item);
-					that.updateModel();
-				}
-			}
-			else if (from == "send") {
-				if (ui.item.hasClass('proposition')){
-					$(ui.sender).sortable('cancel');
-				}
-				else{
-					var player = ui.sender.attr('data-id');
-
-					that.cancelExchange(weight, player);
-					that.scales[to].push(parseInt(weight));
-				}
-			}
-			else {
-				that.scales[from].splice(that.scales[from].indexOf(parseInt(weight)),1);
-				that.scales[to].push(parseInt(weight));
-				console.log("Left " + that.scales.left);
-				console.log("Right " + that.scales.right);
-				console.log("Unused " + that.scales.available);
-				that.updateModel();
-
-			}
+        that.move_weight(from,dest,weight,this.moves.length);
+        that.moves.push([from,dest,weight]);
 		  }
 		}).disableSelection();
 	}
