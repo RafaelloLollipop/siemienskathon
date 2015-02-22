@@ -12,7 +12,7 @@ class Player(object):
 	
 	def __init__(self, socket, nick):
 		self._socket = id(socket)
-		self.room = None
+		self.room_id = None
 		self.id = id(self)
 		self.nick = nick
 		self.data = {}
