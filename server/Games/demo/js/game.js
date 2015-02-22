@@ -48,6 +48,7 @@ document.getElementsByTagName( "head" )[0].appendChild( link );
   };
 
   this.dataHandler = function(data){
+  console.log(data)
     switch(data.action){
       case "move_accepted":this.move_accept_handler();break;
       case "move_rejected":this.move_rejected_handler();break;

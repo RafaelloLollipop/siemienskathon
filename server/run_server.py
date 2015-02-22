@@ -28,7 +28,7 @@ class ClientHandler(tornado.websocket.WebSocketHandler):
 
     def on_close(self):
         server = Server.get_from_memcached()
-        server.delete_player(self.player)
+        server.delete_player(self.player.id)
 
 
     def handle_request(self, data):
@@ -84,9 +84,10 @@ class ClientHandler(tornado.websocket.WebSocketHandler):
         return response
 
     def all_ready(self):
-        response = {'message': "start",
-                    }
-        return response
+        game = Game.getGameByName("Demo")
+        server = Server.get_from_memcached()
+        gra = game(server.players)
+        gra.doAction({'id': server.players[0].id, 'action': 'start'})
 
     def connectToServer(self, player_name):
         self.player = Player(self, player_name)
@@ -98,7 +99,7 @@ class ClientHandler(tornado.websocket.WebSocketHandler):
     def send_id_to_player(self):
         response = {'message': "connectSuccess",
             'data': {
-                    'player_id' : self.player.id
+                    'player_id': self.player.id
                 }
             }
         self.write_message(response)
@@ -110,8 +111,8 @@ class ClientHandler(tornado.websocket.WebSocketHandler):
         ant = [3, 'AntekTworca', 0, 8, 'Labirynt  - zaprszam']
         adam = [1, 'AdamTworca', 5, 8, 'Gramy w mafie, polecam']
         raf = [2, 'RafalTworca', 0, 8, 'sssa']
-        rooms.append(ant)
-        rooms.append(adam)
+        #rooms.append(ant)
+        #rooms.append(adam)
         #rooms.append(raf)
         response = {'message': "rooms",
                     'data': {

@@ -12,7 +12,7 @@ class Room(object):
 
     def remove_player(self, player_id):
         if player_id in self.players:
-            self.players.remoeve(player_id)
+            self.players.remove(player_id)
 
     @staticmethod
     def get_from_memcached(room_id):

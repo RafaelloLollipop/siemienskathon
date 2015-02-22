@@ -25,7 +25,7 @@ class game(Game):
 		return self
 	
 	def doAction(self, data):
-		
+		print(self.players)
 		try:
 			action = data['action']
 		except KeyError:
@@ -33,6 +33,7 @@ class game(Game):
 			
 		try:
 			player = self.getPlayerById(data['id'])
+			print(player)
 		except KeyError:
 			return False
 		
@@ -375,8 +376,11 @@ class game(Game):
 				return True
 		return False
 	
-	def getPlayerById(self, id_):
-		ret = [player for player in self.players if id(player) == id_]
+	def getPlayerById(self, player_id):
+		ret = []
+		for player in self.players:
+			if player.id == int(player_id):
+				ret.append(player)
 		if len(ret) == 1:
 			return ret[0]
 		return False
@@ -385,7 +389,7 @@ class game(Game):
 		team = player.team
 		return {
 			"players": [{"name": player.nick, "id": player.id} for player in self.players if player.team == team],
-			"values": player.data['dataGame']['available'],
+			"available": player.data['dataGame']['available'],
 			"left": player.data['dataGame']['left'],
 			"right": player.data['dataGame']['right'],
 			"from": [{"id": p.id, "value": player.data['dataGame']['propositions']['from'][p]} for p in player.data['dataGame']['propositions']['from'].keys()],

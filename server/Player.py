@@ -34,8 +34,7 @@ class Player(object):
 		return self
 	
 	def sendMessage(self, data):
-		print(data)
-		#self.socket.write_message(json.dump({"message": "gameData", "data": data}))
+		self.socket.write_message(json.dumps({"message": "gameData", "data": data}))
 		return self
 
 """

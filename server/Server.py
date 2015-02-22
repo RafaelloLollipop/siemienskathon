@@ -51,7 +51,11 @@ class Server(object):
     def get_rooms_list(self):
         rooms_list =[]
         for room in self.rooms:
-             rooms_list.append([room.id, self.get_player_nick(room.admin_id), len(room.players), 8, room.room_name])
+            if len(room.players):
+                admin_name = self.get_player_nick(room.players[0])
+            else:
+                admin_name = "Empty"
+            rooms_list.append([room.id,admin_name , len(room.players), 8, room.room_name])
         return rooms_list
 
     def get_player_nick(self, player_id):
