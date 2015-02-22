@@ -1,5 +1,6 @@
 /server/.idea
 /server/Games/__pycache__
+/server/Games/demo/__pycache__
 /server/__pycache__
 /server/Tmp.py
 /server/Games/time
