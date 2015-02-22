@@ -72,7 +72,7 @@ document.getElementsByTagName( "head" )[0].appendChild( link );
 
   this.end_handler = function(){};
 
-  this.proposition_accepted_handler(){};
+  this.proposition_accepted_handler = function(){};
 
   this.move_weight = function(from, to, weight, move_id){
     var data = {
@@ -164,7 +164,5 @@ document.getElementsByTagName( "head" )[0].appendChild( link );
     var html = '<li class="weight '+class_+' ui-state-default" data-weight="' + weight + '">' + weight + ' kg</li>'
     return html;
   };
-
-
 
 }
