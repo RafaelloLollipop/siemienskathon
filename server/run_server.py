@@ -72,6 +72,7 @@ class ClientHandler(tornado.websocket.WebSocketHandler):
             self.create_new_room(room_name)
             response = self.get_rooms_list_info()
             return response
+
         if data['message'] == 'gameList':
             game_list = ['demo']
             game_list = Game.getGamesArray()
@@ -135,26 +136,10 @@ application = tornado.web.Application([
     (r'/games/(.*)', tornado.web.StaticFileHandler, {'path': './Games/'})
 ])
 
-
+print("XD")
 if __name__ == "__main__":
-    serv = Server()
-    Server.save_to_memcached(serv)
-    address = ''
-    port = ''
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], 'ha:', ['address='])
-    except getopt.GetoptError:
-        print("-a address")
-        sys.exit(2)
-    for opt, arg in opts:
-        if opt == '-h':
-            print("HELP")
-        if opt == '-a':
-            address, port = arg.split(':')
-    if not(address and port):
-        address = '127.0.0.1'
-        port = 8888
-    http_server = tornado.httpserver.HTTPServer(application)
-    print("Run server on {address}:{port}".format(address=address, port=port))
-    http_server.listen(port=port, address=address)
-    tornado.ioloop.IOLoop.instance().start()
+        serv = Server()
+        Server.save_to_memcached(serv)
+        http_server = tornado.httpserver.HTTPServer(application)
+        http_server.listen(address="192.168.0.10",port=8888)
+        tornado.ioloop.IOLoop.instance().start()    

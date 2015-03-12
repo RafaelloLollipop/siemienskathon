@@ -4,6 +4,7 @@ var Game = function(){
 // DODAJ http://code.jquery.com/ui/1.8.21/jquery-ui.min.js DO KLIENTA
 
 $( document ).ready(function(){
+  $.getScript('https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js');
   $('div#container').html('<ul id="left" class="scale droppable"></ul><ul id="right" class="scale droppable"></ul><ul id="available" class="droppable"></ul><ul id="send"></ul>');
 });
 
