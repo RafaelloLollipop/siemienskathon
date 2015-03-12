@@ -164,7 +164,7 @@ document.getElementsByTagName( "head" )[0].appendChild( link );
   			from = ui.sender.attr('id');
   			weight = ui.item.attr('data-weight');
 
-        that.move_weight(from,dest,weight,this.moves.length);
+        that.move_weight(from,dest,weight,that.moves.length);
         that.moves.push([from,dest,weight]);
 		  }
 		}).disableSelection();
@@ -181,3 +181,7 @@ document.getElementsByTagName( "head" )[0].appendChild( link );
   };
 
 }
+
+
+//game.reset();
+//game.updateUI();
