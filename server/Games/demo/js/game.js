@@ -33,6 +33,7 @@ document.getElementsByTagName( "head" )[0].appendChild( link );
     this.foreign_propositions = [];
     this.my_propositions = [];
     this.weight_count = 0;
+    this.moves=[];
   };
 
   this.onStart = function(data){
@@ -53,6 +54,9 @@ document.getElementsByTagName( "head" )[0].appendChild( link );
       this.players[i]['waitlist'] = {};	// initialize empty waitlist associated with each player
     }
   $('div#container').html('<ul id="left" class="scale droppable"></ul><ul id="right" class="scale droppable"></ul><ul id="available" class="droppable"></ul><ul id="send"></ul>');
+ game.reset();
+game.updateUI();
+    
   };
 
   this.dataHandler = function(data){
