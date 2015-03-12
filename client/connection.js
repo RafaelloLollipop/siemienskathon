@@ -44,6 +44,8 @@ Connection.prototype.onMessage = function(evt){
  
   var message = parsed.message;
   var data = parsed.data;
+  console.log("i have a message")
+  console.log(message);
   switch(message){
 
     case "rooms" : window.showRooms(data.rooms);break;
@@ -52,6 +54,7 @@ Connection.prototype.onMessage = function(evt){
     case "start": window.game.onStart(data.playerData); break;
     case "gameList":window.setGameList(data.game_list);break;
     case "gameData":window.game.dataHandler(data);break;
+    case "connectSuccess": window.setPlayer(data);break;
 
     default : console.log(data); console.log("Unsupported message");
   }
@@ -59,7 +62,11 @@ Connection.prototype.onMessage = function(evt){
 
 Connection.prototype.sendMessage = function(message){
   var request = {
-    message: message
+    message: message,
+    data: {
+        player_id: window.player.id,
+        room_id: window.player.room_id
+    }
   };
   request = JSON.stringify(request);
   this.websocket.send(request);
@@ -97,6 +104,7 @@ Connection.prototype.joinRoom = function(room_id, player_name){
     name: player_name,
     room_id: room_id
   };
+  window.player.room_id = room_id;
   this.sendData("connectToRoom",data);
 };
 

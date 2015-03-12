@@ -203,3 +203,7 @@ function elementWithId(type, id){
   element.setAttribute("id",id);
   return element;
 };
+
+function setPlayer(data){
+    window.player.id = data.player_id;
+}
