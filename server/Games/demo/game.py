@@ -372,7 +372,7 @@ class game(Game):
 					win = False
 			if win:
 				self.playable = False
-				self.winner = team
+				self.winner = team.name
 				return True
 		return False
 	

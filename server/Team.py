@@ -9,6 +9,7 @@ class Team(object):
 	def __init__(self):
 		self.players = []
 		self.id = id(self)
+        self.name = "test name"
 	
 	def addPlayer(self, player):
 		self.players.append(player)
