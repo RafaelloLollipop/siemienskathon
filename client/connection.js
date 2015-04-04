@@ -1,6 +1,6 @@
 function Connection(server_address,server_port){
   this.websocket = null;
-  this.server_uri = "ws://"+server_address+":"+server_port+"/game";
+  this.server_uri = "ws://"+server_address+":"+server_port;
   this.init();
 }
 
