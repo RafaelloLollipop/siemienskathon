@@ -25,7 +25,3 @@ class RoomHandler(tornado.websocket.WebSocketHandler):
         if server.check_ready_flag_in_room(room_id):
             self.all_ready()
 
-
-    def create_new_room(self, room_name):
-        server = serv.get_from_memcached()
-        server.create_room(self.player.id, room_name)

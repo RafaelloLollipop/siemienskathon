@@ -1,25 +1,31 @@
 import tornado.httpserver
 import tornado.websocket
 import tornado.web
+from tornado.web import asynchronous
 import json
 from handler.client import ClientHandler
 from handler.server import ServerHandler
 from handler.room import RoomHandler
+from core.player import Player
+
 
 class ConnectionHandler(tornado.websocket.WebSocketHandler):
     def open(self):
-        print('new connection')
+        # print('new connection')
+        pass
 
+
+    @asynchronous
     def on_message(self, message):
-        print("Connection Handler from {0} recived".format(self.request.remote_ip))
+        # print("Connection Handler from {0} recived".format(self.request.remote_ip))
         parsed_message = tornado.escape.json_decode(message)
         #print(json.dumps(parsed_message, indent=4))
         self.handle_request(parsed_message)
 
     def on_close(self):
         print("close")
-        #server = Server.get_from_memcached()
-        #server.delete_player(self.player.id)
+    #server = Server.get_from_memcached()
+    #server.delete_player(self.player.id)
 
     def write_respone(self, response):
         self.write_message(response)
@@ -27,6 +33,7 @@ class ConnectionHandler(tornado.websocket.WebSocketHandler):
     def handle_request(self, request):
         response = {'message': "I don't understand you",
                     'data': {}}
+        print(request)
         module_name = request['message']
         encapsulated_request = request['data']
         if module_name == 'clientModule':
@@ -52,22 +59,22 @@ class ConnectionHandler(tornado.websocket.WebSocketHandler):
             server.add_player_to_room(room_id, self.player.id)
             game_name = "demo"
             game_script = "http://" + self.request.host + "/games/" + game_name + "/js/game.js"
-            print(game_script)
+            #print(game_script)
             response = {'message': "roomUpdate",
                         'data': {
                             'players': [],
                             'game': game_name,
                             'game_script': game_script
-                            }
                         }
+            }
             return response
         if data['message'] == 'exitRoom':
             response = {'message': "OK",
-                        }
+            }
             return response
         if data['message'] == 'selectGame':
             response = {'message': "OK",
-                        }
+            }
             return response
         if data['message'] == 'ready':
             player_id = data['data']['player_id']
@@ -76,7 +83,7 @@ class ConnectionHandler(tornado.websocket.WebSocketHandler):
             self.check_ready_flag_in_room(room_id)
             #response = self.all_ready()
             response = {'message': "OK",
-                        }
+            }
             return response
         if data['message'] == 'newRoom':
             room_name = data['data']['room_name']
@@ -90,8 +97,8 @@ class ConnectionHandler(tornado.websocket.WebSocketHandler):
             response = {'message': "gameList",
                         'data': {
                             'game_list': game_list
-                            }
                         }
+            }
             return response
 
         if data['message'] == 'gameData':
